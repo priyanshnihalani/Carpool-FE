@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+.custom-calendar {
+  font-family: inherit;
+}
+
+.custom-calendar .rbc-month-view {
+  border: none;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.custom-calendar .rbc-header {
+  padding: 12px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.custom-calendar .rbc-row-bg {
+  border-top: 1px solid #e5e7eb;
+}
+
+.custom-calendar .rbc-day-bg {
+  border-right: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.custom-calendar .rbc-date-cell {
+  padding: 6px 8px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.custom-calendar .rbc-off-range-bg {
+  background: #f8fafc;
+}
+
+.custom-calendar .rbc-today {
+  background: #f1f5f9;
+}
+
+.custom-calendar .rbc-event {
+  background: #e0edff;
+  color: #1e3a8a;
+  border-radius: 6px;
+  border: 1px solid #c7dbff;
+  padding: 3px 6px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.custom-calendar .rbc-event:hover {
+  background: #d6e6ff;
+}
+
+.custom-calendar .rbc-toolbar {
+  margin-bottom: 12px;
+}
+
+.custom-calendar .rbc-toolbar button {
+  border-radius: 8px;
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  font-size: 13px;
+}
+
+.custom-calendar .rbc-toolbar button.rbc-active {
+  background: #0f172a;
+  color: white;
+  border-color: #0f172a;
+}
