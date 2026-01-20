@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { Car, LogIn } from "lucide-react";
+import { ApiService } from "../ApiService";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -20,12 +20,12 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post(
-        "http://localhost:4000/api/users/login",
+      const res = await ApiService.post(
+        "/api/users/login",
         { email, password }
       );
 
-      const user = res.data.user;
+      const user = res.user;
       localStorage.setItem("user", JSON.stringify(user));
 
       if (user.role === "admin") {

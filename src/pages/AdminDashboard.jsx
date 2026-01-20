@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { Users, Building2, Car, BookOpen } from "lucide-react";
+import { Users, Building2, Car, BookOpen, UserCheck } from "lucide-react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { ApiService } from "../ApiService";
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -20,26 +20,27 @@ const Dashboard = () => {
     const load = async () => {
       try {
         const [u, br, bk] = await Promise.all([
-          axios.get("http://localhost:4000/api/users/get"),
-          axios.get("http://localhost:4000/api/branches/get"),
-          axios.get("http://localhost:4000/api/bookings/all"),
+          ApiService.get("/api/users/get"),
+          ApiService.get("/api/branches/get"),
+          ApiService.get("/api/bookings/all"),
         ]);
 
-        const branches = br.data.branches;
-        setBookings(bk.data.bookings);
+        const branches = br.branches;
+        setBookings(bk.bookings);
 
         const carRequests = branches.map((b) =>
-          axios.get(`http://localhost:4000/api/cars/branch/${b.id}`)
+          ApiService.get(`/api/cars/branch/${b.id}`)
         );
 
         const carResponses = await Promise.all(carRequests);
-        const allCars = carResponses.flatMap((r) => r.data);
+        console.log(carResponses)
+        const allCars = carResponses.flatMap((r) => r.cars);
 
         setStats({
-          users: u.data.users.length,
+          users: u.users.length,
           branches: branches.length,
           cars: allCars.length,
-          bookings: bk.data.bookings.length,
+          bookings: bk.bookings.length,
         });
       } catch (err) {
         console.error("Dashboard load error:", err);
@@ -72,10 +73,6 @@ const Dashboard = () => {
     acc[key] = (acc[key] || 0) + 1;
     return acc;
   }, {});
-
-  const sortedMonths = Object.keys(bookingsByMonth).sort();
-
-
 
 
   const months = [
@@ -140,8 +137,9 @@ const Dashboard = () => {
     <div className="space-y-6 sm:space-y-8 p-3 sm:p-6">
       {/* Header */}
       <div className="my-12 lg:my-0 lg:mb-10">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800">
-          Admin Dashboard
+        <h1 className="flex items-center space-x-2 text-xl sm:text-2xl md:text-3xl font-bold text-slate-800">
+           <UserCheck className="text-blue-600 w-6 h-6 sm:w-7 sm:h-7"/>
+           <span>Admin Dashboard</span>
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
           Overview of your car booking system

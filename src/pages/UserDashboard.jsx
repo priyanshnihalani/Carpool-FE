@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import axios from "axios";
 import { Building, CalendarPlus, Car, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ApiService } from "../ApiService";
 
 const localizer = momentLocalizer(moment);
 
@@ -19,9 +19,9 @@ const UserDashboard = () => {
 
     useEffect(() => {
         const loadBookings = async () => {
-            const res = await axios.get("http://localhost:4000/api/bookings/all");
+            const res = await ApiService.get("/api/bookings/all");
 
-            const formatted = res.data.bookings.map(b => ({
+            const formatted = res.bookings.map(b => ({
                 id: b.id,
                 title: `${b.Car?.name || "Car"}`,
                 start: new Date(b.startAt),
@@ -47,8 +47,8 @@ const UserDashboard = () => {
 
     useEffect(() => {
         const loadBranches = async () => {
-            const res = await axios.get("http://localhost:4000/api/branches/get");
-            setBranches(res.data.branches || []);
+            const res = await ApiService.get("/api/branches/get");
+            setBranches(res.branches || []);
         };
 
         loadBranches();
@@ -60,7 +60,7 @@ const UserDashboard = () => {
         : events;
 
     const upcomingEvents = filteredEvents.filter(
-        e => e.start.getTime() > Date.now()
+        e => e.start.getTime() > Date.now() && e.name == user.name
     );
 
 

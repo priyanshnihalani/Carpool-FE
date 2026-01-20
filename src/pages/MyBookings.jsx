@@ -1,16 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
-import { Car } from "lucide-react";
+import { Calendar, Car } from "lucide-react";
+import { ApiService } from "../ApiService";
 
 const MyBookings = () => {
     const [myBookings, setMyBookings] = useState([]);
     const user = JSON.parse(localStorage.getItem("user"));
 
     const loadMyBookings = async () => {
-        const res = await axios.get(
-            `http://localhost:4000/api/bookings/user/${user.id}`
+        const res = await ApiService.get(
+            `/api/bookings/user/${user.id}`
         );
-        setMyBookings(res.data.bookings || []);
+        setMyBookings(res.bookings || []);
     };
 
     useEffect(() => {
@@ -39,7 +39,10 @@ const MyBookings = () => {
 
     return (
         <div className="space-y-6">
-            <h1 className="text-2xl font-bold">My Bookings</h1>
+            <div className="flex items-center space-x-2">
+                <Calendar className="text-blue-600 w-6 h-6 sm:w-7 sm:h-7" />
+                <h1 className="text-2xl font-bold">My Bookings</h1>
+            </div>
 
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -97,8 +100,8 @@ const MyBookings = () => {
 
                                     <span
                                         className={`px-3 py-1 rounded-full text-xs font-semibold ${isCompleted
-                                                ? "bg-slate-200 text-slate-700"
-                                                : "bg-green-100 text-green-700"
+                                            ? "bg-slate-200 text-slate-700"
+                                            : "bg-green-100 text-green-700"
                                             }`}
                                     >
                                         {isCompleted ? "Completed" : "Upcoming"}

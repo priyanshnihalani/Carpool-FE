@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Car, Calendar, ArrowBigDown, ArrowDown01, ArrowDown } from "lucide-react";
+import { ApiService } from "../ApiService";
 
 const BookCar = () => {
     const [branches, setBranches] = useState([]);
@@ -22,18 +22,18 @@ const BookCar = () => {
     const user = JSON.parse(localStorage.getItem("user"));
 
     useEffect(() => {
-        axios.get("http://localhost:4000/api/branches/get").then((res) => {
-            setBranches(res.data.branches);
+        ApiService.get("/api/branches/get").then((res) => {
+            setBranches(res.branches);
         });
     }, []);
 
     useEffect(() => {
         if (!branchId) return;
 
-        axios
-            .get(`http://localhost:4000/api/cars/branch/${branchId}`)
+        ApiService
+            .get(`/api/cars/branch/${branchId}`)
             .then((res) => {
-                setCars(res.data.cars || []);
+                setCars(res.cars || []);
                 setCarId("");
                 setAvailability(null);
             });
@@ -46,8 +46,8 @@ const BookCar = () => {
         }
 
         const check = async () => {
-            const res = await axios.post(
-                "http://localhost:4000/api/bookings/check-multiple",
+            const res = await ApiService.post(
+                "/api/bookings/check-multiple",
                 {
                     carIds: [carId],
                     startAt: from,
@@ -55,7 +55,7 @@ const BookCar = () => {
                 }
             );
 
-            setAvailability(res.data[carId].status);
+            setAvailability(res[carId].status);
         };
 
         check();
@@ -78,8 +78,8 @@ const BookCar = () => {
         }
 
         try {
-            const res = await axios.post(
-                "http://localhost:4000/api/bookings/create",
+            const res = await ApiService.post(
+                "/api/bookings/create",
                 {
                     startAt: from,
                     endAt: to,
@@ -94,7 +94,7 @@ const BookCar = () => {
             );
 
             // Success response
-            alert(res.data?.message || "Booking created successfully!");
+            alert(res.message || "Booking created successfully!");
 
             // Reset form
             setFrom("");
@@ -120,7 +120,10 @@ const BookCar = () => {
 
     return (
         <div className="space-y-6">
-            <h1 className="text-2xl font-bold">Book a Car</h1>
+            <div className="flex items-center space-x-2">
+                <Car className="text-blue-600 w-6 h-6 sm:w-7 sm:h-7" />
+                <h1 className="text-2xl font-bold">Book a Car</h1>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
