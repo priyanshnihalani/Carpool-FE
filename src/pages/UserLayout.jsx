@@ -1,11 +1,13 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Car, BookOpen, LogOut } from "lucide-react";
+import toast from "react-hot-toast";
 
 const UserLayout = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    toast.success("Logged out successfully");
     navigate("/");
   };
 
@@ -37,8 +39,7 @@ const UserLayout = () => {
             to="/user/dashboard"
             title="Dashboard"
             className={({ isActive }) =>
-              `w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl transition ${
-                isActive ? "bg-white/10" : "hover:bg-slate-700"
+              `w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl transition ${isActive ? "bg-white/10" : "hover:bg-slate-700"
               }`
             }
           >
@@ -49,8 +50,7 @@ const UserLayout = () => {
             to="/user/book"
             title="Book a Car"
             className={({ isActive }) =>
-              `w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl transition ${
-                isActive ? "bg-white/10" : "hover:bg-slate-700"
+              `w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl transition ${isActive ? "bg-white/10" : "hover:bg-slate-700"
               }`
             }
           >
@@ -61,8 +61,7 @@ const UserLayout = () => {
             to="/user/bookings"
             title="My Bookings"
             className={({ isActive }) =>
-              `w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl transition ${
-                isActive ? "bg-white/10" : "hover:bg-slate-700"
+              `w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl transition ${isActive ? "bg-white/10" : "hover:bg-slate-700"
               }`
             }
           >

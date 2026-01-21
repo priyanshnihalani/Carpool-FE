@@ -8,12 +8,14 @@ import {
   LogOut,
   Shield,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
 
   const logout = () => {
     localStorage.removeItem("user");
+    toast.success("Logged out successfully");
     navigate("/");
   };
 

@@ -10,6 +10,7 @@ import {
   Users as UsersIcon,
 } from "lucide-react";
 import { ApiService } from "../ApiService";
+import toast from "react-hot-toast";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -38,13 +39,17 @@ const Users = () => {
   const submitUser = async (e) => {
     e.preventDefault();
 
+    const toastId = toast.loading(
+      editingUser ? "Updating user..." : "Creating user..."
+    );
+
     try {
       if (editingUser) {
         await ApiService.put(`/api/users/update/${editingUser.id}`, form);
-        alert("User updated");
+        toast.success("User updated successfully", { id: toastId });
       } else {
         await ApiService.post("/api/users/create", form);
-        alert("User created");
+        toast.success("User created successfully", { id: toastId });
       }
 
       setForm({ name: "", email: "", role: "user" });
@@ -52,7 +57,10 @@ const Users = () => {
       setShowForm(false);
       fetchUsers();
     } catch (err) {
-      alert(err.response?.data?.message || "Operation failed");
+      toast.error(
+        err.response?.data?.message || "Operation failed",
+        { id: toastId }
+      );
     }
   };
 
@@ -71,11 +79,17 @@ const Users = () => {
   const deleteUser = async (id) => {
     if (!confirm("Delete this user?")) return;
 
+    const toastId = toast.loading("Deleting user...");
+
     try {
       await ApiService.delete(`/api/users/delete/${id}`);
+      toast.success("User deleted successfully", { id: toastId });
       fetchUsers();
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to delete user");
+      toast.error(
+        err.response?.data?.message || "Failed to delete user",
+        { id: toastId }
+      );
     }
   };
 
@@ -240,11 +254,10 @@ const Users = () => {
             {/* Role Badge */}
             <div className="mb-4">
               <span
-                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium capitalize ${
-                  u.role === "admin"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-slate-100 text-slate-700"
-                }`}
+                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium capitalize ${u.role === "admin"
+                  ? "bg-blue-100 text-blue-700"
+                  : "bg-slate-100 text-slate-700"
+                  }`}
               >
                 {u.role}
               </span>

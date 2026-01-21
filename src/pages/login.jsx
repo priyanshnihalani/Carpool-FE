@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Car, LogIn } from "lucide-react";
 import { ApiService } from "../ApiService";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -13,11 +14,12 @@ const Login = () => {
     e.preventDefault();
 
     if (!email || !password) {
-      alert("Please enter both email and password");
+      toast.error("Please enter both email and password");
       return;
     }
 
     setLoading(true);
+    const toastId = toast.loading("Logging in...");
 
     try {
       const res = await ApiService.post(
@@ -28,13 +30,18 @@ const Login = () => {
       const user = res.user;
       localStorage.setItem("user", JSON.stringify(user));
 
+      toast.success("Login successful!", { id: toastId });
+
       if (user.role === "admin") {
         navigate("/admin/dashboard");
       } else {
         navigate("/user/dashboard");
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Login failed");
+      toast.error(
+        err.response?.data?.message || "Login failed",
+        { id: toastId }
+      );
     } finally {
       setLoading(false);
     }

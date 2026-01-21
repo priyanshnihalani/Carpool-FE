@@ -15,6 +15,8 @@ import MyBookings from "./pages/MyBookings";
 import AdminLayout from "./pages/AdminLayout";
 import UserLayout from "./pages/UserLayout";
 
+import { Toaster } from "react-hot-toast";
+
 function App() {
   const router = createBrowserRouter([
     /* ---------- PUBLIC ---------- */
@@ -55,7 +57,12 @@ function App() {
     },
   ]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <Toaster position="top-right" />
+    </>
+  );
 }
 
 export default App;

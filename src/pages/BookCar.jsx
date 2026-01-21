@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Car, Calendar, ArrowBigDown, ArrowDown01, ArrowDown } from "lucide-react";
 import { ApiService } from "../ApiService";
+import toast from "react-hot-toast";
 
 const BookCar = () => {
     const [branches, setBranches] = useState([]);
@@ -65,7 +66,7 @@ const BookCar = () => {
         if (availability !== "available") return;
 
         if (!from || !to) {
-            alert("Please select both start and end time");
+            toast.error("Please select both start and end time");
             return;
         }
 
@@ -73,9 +74,11 @@ const BookCar = () => {
         const toDate = new Date(to);
 
         if (toDate <= fromDate) {
-            alert("End time must be greater than start time");
+            toast.error("End time must be greater than start time");
             return;
         }
+
+        const toastId = toast.loading("Creating booking...");
 
         try {
             const res = await ApiService.post(
@@ -93,10 +96,10 @@ const BookCar = () => {
                 }
             );
 
-            // Success response
-            alert(res.message || "Booking created successfully!");
+            toast.success(res.message || "Booking created successfully!", {
+                id: toastId,
+            });
 
-            // Reset form
             setFrom("");
             setTo("");
             setPurpose("");
@@ -108,11 +111,10 @@ const BookCar = () => {
         } catch (err) {
             console.error("Booking error:", err);
 
-            if (err.response) {
-                alert(err.response.data?.message || "Failed to create booking");
-            } else {
-                alert("Network error. Please try again.");
-            }
+            toast.error(
+                err.response?.data?.message || "Network error. Please try again.",
+                { id: toastId }
+            );
         }
     };
 

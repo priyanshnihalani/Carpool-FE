@@ -14,6 +14,7 @@ import {
   Settings,
 } from "lucide-react";
 import { ApiService } from "../ApiService";
+import toast from "react-hot-toast";
 
 const emptyForm = {
   name: "",
@@ -80,19 +81,31 @@ const Cars = () => {
     e.preventDefault();
 
     const payload = { ...form, branchId };
+    const toastId = toast.loading(
+      editingCar ? "Updating car..." : "Creating car..."
+    );
 
-    if (editingCar) {
-      await ApiService.put(`/api/cars/update/${editingCar.id}`, payload);
-    } else {
-      await ApiService.post("/api/cars/create", payload);
+    try {
+      if (editingCar) {
+        await ApiService.put(`/api/cars/update/${editingCar.id}`, payload);
+        toast.success("Car updated successfully", { id: toastId });
+      } else {
+        await ApiService.post("/api/cars/create", payload);
+        toast.success("Car created successfully", { id: toastId });
+      }
+
+      setForm(emptyForm);
+      setEditingCar(null);
+      setShowForm(false);
+
+      const res = await ApiService.get(`/api/cars/branch/${branchId}`);
+      setCars(res.cars);
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Operation failed",
+        { id: toastId }
+      );
     }
-
-    setForm(emptyForm);
-    setEditingCar(null);
-    setShowForm(false);
-
-    const res = await ApiService.get(`/api/cars/branch/${branchId}`);
-    setCars(res.cars);
   };
 
   const openCreate = () => {
@@ -120,9 +133,21 @@ const Cars = () => {
 
   const deleteCar = async (id) => {
     if (!confirm("Delete this car?")) return;
-    await ApiService.delete(`/api/cars/${id}`);
-    const res = await ApiService.get(`/api/cars/branch/${branchId}`);
-    setCars(res.cars);
+
+    const toastId = toast.loading("Deleting car...");
+
+    try {
+      await ApiService.delete(`/api/cars/${id}`);
+      toast.success("Car deleted", { id: toastId });
+
+      const res = await ApiService.get(`/api/cars/branch/${branchId}`);
+      setCars(res.cars);
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Delete failed",
+        { id: toastId }
+      );
+    }
   };
 
   const formatDate = (d) =>

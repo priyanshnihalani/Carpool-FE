@@ -7,6 +7,7 @@ import {
   Building,
   Settings,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 const Branches = () => {
   const [branches, setBranches] = useState([]);
@@ -45,13 +46,18 @@ const Branches = () => {
 
   const submitForm = async (e) => {
     e.preventDefault();
+
+    const toastId = toast.loading(
+      editingBranch ? "Updating branch..." : "Creating branch..."
+    );
+
     try {
       if (editingBranch) {
         await ApiService.put(`/api/branches/update/${editingBranch.id}`, form);
-        alert("Branch updated");
+        toast.success("Branch updated successfully", { id: toastId });
       } else {
         await ApiService.post("/api/branches/create", form);
-        alert("Branch created");
+        toast.success("Branch created successfully", { id: toastId });
       }
 
       setShowForm(false);
@@ -59,18 +65,28 @@ const Branches = () => {
       setForm({ name: "", location: "" });
       fetchBranches();
     } catch (err) {
-      alert(err.response?.data?.message || "Operation failed");
+      toast.error(
+        err.response?.data?.message || "Operation failed",
+        { id: toastId }
+      );
     }
   };
+
 
   const deleteBranch = async (id) => {
     if (!confirm("Are you sure you want to delete this branch?")) return;
 
+    const toastId = toast.loading("Deleting branch...");
+
     try {
       await ApiService.delete(`/api/branches/delete/${id}`);
+      toast.success("Branch deleted successfully", { id: toastId });
       fetchBranches();
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to delete branch");
+      toast.error(
+        err.response?.data?.message || "Failed to delete branch",
+        { id: toastId }
+      );
     }
   };
 
