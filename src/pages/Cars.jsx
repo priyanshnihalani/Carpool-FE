@@ -48,40 +48,69 @@ const Cars = () => {
   };
 
   useEffect(() => {
-    ApiService.get("/api/branches/get").then((res) => {
-      const list = res.branches || [];
-      setBranches(list);
-      if (list.length > 0) setBranchId(list[0].id);
-    });
+    try {
+      setLoading(true)
+      ApiService.get("/api/branches/get").then((res) => {
+        const list = res.branches || [];
+        setBranches(list);
+        if (list.length > 0) setBranchId(list[0].id);
+      });
+
+    }
+    catch (err) {
+      toast.error("Something went wrong ", err.message)
+    }
+    finally {
+      setLoading(false)
+    }
   }, []);
 
   useEffect(() => {
     if (!branchId) return;
-    ApiService.get(`/api/cars/branch/${branchId}`).then((res) => {
-      setCars(res.cars || []);
-      setAvailabilityMap({});
-    });
+    try {
+      setLoading(true)
+      ApiService.get(`/api/cars/branch/${branchId}`).then((res) => {
+        setCars(res.cars || []);
+        setAvailabilityMap({});
+      });
+
+    }
+    catch (err) {
+      toast.error("Something went wrong ", err.message)
+    }
+    finally {
+      setLoading(false)
+    }
   }, [branchId]);
 
+  const checkAll = async () => {
+    try {
+      setLoading(true)
+      const res = await ApiService.post("/api/bookings/check-multiple", {
+        carIds: cars.map((c) => c.id),
+        startAt: from,
+        endAt: to,
+      });
+      setAvailabilityMap(res);
+    }
+    catch (err) {
+      toast.error("Something went wrong! ", err.message)
+    }
+    finally {
+      setLoading(false)
+    }
+  };
 
   useEffect(() => {
     if (!from || !to || cars.length === 0) return;
     checkAll();
   }, [from, to, cars]);
 
-  const checkAll = async () => {
-    const res = await ApiService.post("/api/bookings/check-multiple", {
-      carIds: cars.map((c) => c.id),
-      startAt: from,
-      endAt: to,
-    });
-    setAvailabilityMap(res);
-  };
-
   const submitCar = async (e) => {
     e.preventDefault();
 
     const payload = { ...form, branchId };
+    console.log(payload)
     const toastId = toast.loading(
       editingCar ? "Updating car..." : "Creating car..."
     );
@@ -204,6 +233,7 @@ const Cars = () => {
 
   return (
     <>
+
       {showForm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <form
@@ -429,164 +459,172 @@ const Cars = () => {
         </div>
       )}
 
-      <div className="p-3 sm:p-6 space-y-4 sm:space-y-5">
-        {/* Header */}
-        <header className="flex flex-col gap-4">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 flex items-center gap-2">
-            <Car className="text-blue-600 w-6 h-6 sm:w-7 sm:h-7" />
-            Cars
-          </h1>
+      {loading ?
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+        :
+        <div className="flex flex-col my-20 md:my-0 min-h-screen p-3 sm:p-6 space-y-4 sm:space-y-5">
+          {/* Header */}
+          <header className=" flex flex-col gap-4">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 flex items-center gap-2">
+              <Car className="text-blue-600 w-6 h-6 sm:w-7 sm:h-7" />
+              Cars
+            </h1>
 
-          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
-            {/* Branch */}
-            <div className="relative h-11 w-full sm:w-auto group">
-              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition">
-                <MapPin size={16} />
-              </div>
-              <select
-                value={branchId}
-                onChange={(e) => setBranchId(e.target.value)}
-                className="h-full w-full sm:w-56 pl-10 pr-3 rounded-xl bg-slate-50 border border-slate-200 text-sm shadow-inner outline-none transition-all focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-              >
-                <option value="">Select Branch</option>
-                {branches.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* From */}
-            <div className="relative h-11 w-full sm:w-auto group">
-              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition">
-                <CalendarClock size={16} />
-              </div>
-              <input
-                type="datetime-local"
-                onChange={(e) => setFrom(e.target.value)}
-                className="h-full w-full sm:w-56 pl-10 pr-3 rounded-xl bg-slate-50 border border-slate-200 text-sm shadow-inner outline-none transition-all focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-              />
-            </div>
-
-            {/* To */}
-            <div className="relative h-11 w-full sm:w-auto group">
-              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition">
-                <CalendarClock size={16} />
-              </div>
-              <input
-                type="datetime-local"
-                onChange={(e) => setTo(e.target.value)}
-                className="h-full w-full sm:w-56 pl-10 pr-3 rounded-xl bg-slate-50 border border-slate-200 text-sm shadow-inner outline-none transition-all focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-              />
-            </div>
-
-            {/* Add */}
-            <button
-              disabled={!branchId}
-              onClick={openCreate}
-              className="h-11 w-full sm:w-auto inline-flex justify-center items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white px-5 text-sm shadow-lg shadow-blue-200/50 hover:from-blue-700 hover:to-blue-600 transition-all disabled:opacity-50"
-            >
-              <Plus size={16} />
-              Add Car
-            </button>
-          </div>
-        </header>
-
-        {/* Car Cards Grid */}
-        {loading ?
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </div>
-          :
-          cars.length > 0 ?
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {cars.map((c) => (
-                <div key={c.id} className="bg-white rounded-2xl shadow-lg border border-slate-100 p-5 hover:shadow-xl transition-all duration-200">
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-50 rounded-lg">
-                        <Car className="text-blue-600" size={20} />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-slate-800 text-lg">{c.name}</h3>
-                        <p className="text-slate-500 text-sm">{c.carCompany} {c.carModel}</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => openEdit(c)}
-                        className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                        title="Edit"
-                      >
-                        <Settings size={16} />
-                      </button>
-                      <button
-                        onClick={() => deleteCar(c.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Delete"
-                      >
-                        <XCircle size={16} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Details Grid */}
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <Building className="text-slate-400" size={14} />
-                      <span className="text-sm text-slate-600">{c.carCompany}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Settings className="text-slate-400" size={14} />
-                      <span className="text-sm text-slate-600">{c.carModel}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="text-slate-400" size={14} />
-                      <span className="text-sm text-slate-600">{c.carYear}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Palette className="text-slate-400" size={14} />
-                      <span className="text-sm text-slate-600">{c.carColor}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Hash className="text-slate-400" size={14} />
-                      <span className="text-sm text-slate-600">{c.carNumber}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Hash className="text-slate-400" size={14} />
-                      <span className="text-sm text-slate-600">{c.chassisNumber}</span>
-                    </div>
-                  </div>
-
-                  {/* Vehicle Type */}
-                  <div className="mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 capitalize">
-                      {c.vehicleType}
-                    </span>
-                  </div>
-
-                  <div className="mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 capitalize">
-                      {c.fuelType}
-                    </span>
-                  </div>
-
-                  {/* Status */}
-                  <div className="flex items-center justify-between">
-                    <div>{renderStatus(c.id)}</div>
-                  </div>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
+              {/* Branch */}
+              <div className="relative h-11 w-full sm:w-auto group">
+                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition">
+                  <MapPin size={16} />
                 </div>
-              ))}
+                <select
+                  value={branchId}
+                  onChange={(e) => setBranchId(e.target.value)}
+                  className="h-full w-full sm:w-56 pl-10 pr-3 rounded-xl bg-slate-50 border border-slate-200 text-sm shadow-inner outline-none transition-all focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                >
+                  <option value="">Select Branch</option>
+                  {branches.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* From */}
+              <div className="relative h-11 w-full sm:w-auto group">
+                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition">
+                  <CalendarClock size={16} />
+                </div>
+                <input
+                  type="datetime-local"
+                  onChange={(e) => setFrom(e.target.value)}
+                  className="h-full w-full sm:w-56 pl-10 pr-3 rounded-xl bg-slate-50 border border-slate-200 text-sm shadow-inner outline-none transition-all focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                />
+              </div>
+
+              {/* To */}
+              <div className="relative h-11 w-full sm:w-auto group">
+                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition">
+                  <CalendarClock size={16} />
+                </div>
+                <input
+                  type="datetime-local"
+                  onChange={(e) => setTo(e.target.value)}
+                  className="h-full w-full sm:w-56 pl-10 pr-3 rounded-xl bg-slate-50 border border-slate-200 text-sm shadow-inner outline-none transition-all focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                />
+              </div>
+
+              {/* Add */}
+              <button
+                disabled={!branchId}
+                onClick={openCreate}
+                className="h-11 w-full sm:w-auto inline-flex justify-center items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white px-5 text-sm shadow-lg shadow-blue-200/50 hover:from-blue-700 hover:to-blue-600 transition-all disabled:opacity-50"
+              >
+                <Plus size={16} />
+                Add Car
+              </button>
             </div>
-            :
-            <div className="flex-1  text-gray-700 flex flex-col justify-center items-center">
-              <Car size={40} />
-              <span>No Cars Available</span>
-            </div>
-        }
-      </div>
+          </header>
+
+          <main className={cars.length != 0 ? "flex-1" :"flex-1 flex justify-center items-center"}>
+
+            {/* Car Cards Grid */}
+            {loading ?
+              <div className="min-h-screen flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+              :
+              cars.length > 0 ?
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {cars.map((c) => (
+                    <div key={c.id} className="bg-white rounded-2xl shadow-lg border border-slate-100 p-5 hover:shadow-xl transition-all duration-200">
+                      {/* Header */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-blue-50 rounded-lg">
+                            <Car className="text-blue-600" size={20} />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-slate-800 text-lg">{c.name}</h3>
+                            <p className="text-slate-500 text-sm">{c.carCompany} {c.carModel}</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => openEdit(c)}
+                            className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                            title="Edit"
+                          >
+                            <Settings size={16} />
+                          </button>
+                          <button
+                            onClick={() => deleteCar(c.id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete"
+                          >
+                            <XCircle size={16} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Details Grid */}
+                      <div className="grid grid-cols-2 gap-3 mb-4">
+                        <div className="flex items-center gap-2">
+                          <Building className="text-slate-400" size={14} />
+                          <span className="text-sm text-slate-600">{c.carCompany}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Settings className="text-slate-400" size={14} />
+                          <span className="text-sm text-slate-600">{c.carModel}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="text-slate-400" size={14} />
+                          <span className="text-sm text-slate-600">{c.carYear}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Palette className="text-slate-400" size={14} />
+                          <span className="text-sm text-slate-600">{c.carColor}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Hash className="text-slate-400" size={14} />
+                          <span className="text-sm text-slate-600">{c.carNumber}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Hash className="text-slate-400" size={14} />
+                          <span className="text-sm text-slate-600">{c.chassisNumber}</span>
+                        </div>
+                      </div>
+
+                      {/* Vehicle Type */}
+                      <div className="mb-4">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 capitalize">
+                          {c.vehicleType}
+                        </span>
+                      </div>
+
+                      <div className="mb-4">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 capitalize">
+                          {c.fuelType}
+                        </span>
+                      </div>
+
+                      {/* Status */}
+                      <div className="flex items-center justify-between">
+                        <div>{renderStatus(c.id)}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                :
+                <div className="flex-1  text-gray-700 flex flex-col justify-center items-center">
+                  <Car size={40} />
+                  <span>No Cars Available</span>
+                </div>
+            }
+          </main>
+        </div>}
 
     </>
   );

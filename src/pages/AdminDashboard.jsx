@@ -135,55 +135,55 @@ const Dashboard = () => {
 
 
   return (
-    <div className="space-y-6 sm:space-y-8 p-3 sm:p-6">
-      {/* Header */}
-      <div className="my-12 lg:my-0 lg:mb-10">
-        <h1 className="flex items-center space-x-2 text-xl sm:text-2xl md:text-3xl font-bold text-slate-800">
-          <UserCheck className="text-blue-600 w-6 h-6 sm:w-7 sm:h-7" />
-          <span>Admin Dashboard</span>
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Overview of your car booking system
-        </p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-        <Card title="Users" value={stats.users} icon={Users} gradient="from-blue-600 to-blue-500" />
-        <Card title="Branches" value={stats.branches} icon={Building2} gradient="from-emerald-600 to-emerald-500" />
-        <Card title="Cars" value={stats.cars} icon={Car} gradient="from-indigo-600 to-indigo-500" />
-        <Card title="Bookings" value={stats.bookings} icon={BookOpen} gradient="from-rose-600 to-rose-500" />
-      </div>
-
-      {/* Chart */}
-      {/* Chart */}
-      <div className="bg-white w-full rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-slate-800">Yearly Bookings</h3>
-
-          <select
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
-            className="rounded-lg px-3 py-1.5 text-sm"
-          >
-            {yearOptions.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
+    <div className="flex my-10 md:my-0 flex-col min-h-screen space-y-6 sm:space-y-8 p-3 sm:p-6">
+      <header>
+        {/* Header */}
+        <div className="my-12 lg:my-0 lg:mb-10">
+          <h1 className="flex items-center space-x-2 text-xl sm:text-2xl md:text-3xl font-bold text-slate-800">
+            <UserCheck className="text-blue-600 w-6 h-6 sm:w-7 sm:h-7" />
+            <span>Admin Dashboard</span>
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Overview of your car booking system
+          </p>
         </div>
 
-        {hasChartData ? (
-          <HighchartsReact highcharts={Highcharts} options={chartOptions} />
-        ) : (
-          <div className="flex flex-col items-center justify-center h-64 text-slate-500">
-            <BookOpen className="w-10 h-10 mb-2 text-slate-300" />
-            <p className="text-sm">No bookings available for this year</p>
-          </div>
-        )}
-      </div>
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+          <Card title="Users" value={stats.users} icon={Users} gradient="from-blue-600 to-blue-500" />
+          <Card title="Branches" value={stats.branches} icon={Building2} gradient="from-emerald-600 to-emerald-500" />
+          <Card title="Cars" value={stats.cars} icon={Car} gradient="from-indigo-600 to-indigo-500" />
+          <Card title="Bookings" value={stats.bookings} icon={BookOpen} gradient="from-rose-600 to-rose-500" />
+        </div>
 
+      </header>
+        {/* Chart */}
+        <main className={hasChartData ? "" :"flex-1 bg-white w-full rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 space-y-4"}>
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-slate-800">Yearly Bookings</h3>
+
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
+              className="rounded-lg px-3 py-1.5 text-sm"
+            >
+              {yearOptions.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {hasChartData ? (
+            <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+          ) : (
+            <div className="flex flex-col items-center justify-center h-64 text-slate-500">
+              <BookOpen className="w-10 h-10 mb-2 text-slate-300" />
+              <p className="text-sm">No bookings available for this year</p>
+            </div>
+          )}
+        </main>
 
     </div>
   );
