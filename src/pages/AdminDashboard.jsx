@@ -108,6 +108,7 @@ const Dashboard = () => {
     })
   );
 
+  const hasChartData = chartSeries.length > 0;
 
   const chartOptions = {
     title: { text: `Monthly Bookings – ${selectedYear}` },
@@ -138,8 +139,8 @@ const Dashboard = () => {
       {/* Header */}
       <div className="my-12 lg:my-0 lg:mb-10">
         <h1 className="flex items-center space-x-2 text-xl sm:text-2xl md:text-3xl font-bold text-slate-800">
-           <UserCheck className="text-blue-600 w-6 h-6 sm:w-7 sm:h-7"/>
-           <span>Admin Dashboard</span>
+          <UserCheck className="text-blue-600 w-6 h-6 sm:w-7 sm:h-7" />
+          <span>Admin Dashboard</span>
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
           Overview of your car booking system
@@ -155,6 +156,7 @@ const Dashboard = () => {
       </div>
 
       {/* Chart */}
+      {/* Chart */}
       <div className="bg-white w-full rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-slate-800">Yearly Bookings</h3>
@@ -162,7 +164,7 @@ const Dashboard = () => {
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(Number(e.target.value))}
-            className=" rounded-lg px-3 py-1.5 text-sm"
+            className="rounded-lg px-3 py-1.5 text-sm"
           >
             {yearOptions.map((y) => (
               <option key={y} value={y}>
@@ -172,8 +174,16 @@ const Dashboard = () => {
           </select>
         </div>
 
-        <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+        {hasChartData ? (
+          <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-64 text-slate-500">
+            <BookOpen className="w-10 h-10 mb-2 text-slate-300" />
+            <p className="text-sm">No bookings available for this year</p>
+          </div>
+        )}
       </div>
+
 
     </div>
   );
