@@ -1,7 +1,12 @@
 import axios from "axios";
 
+const baseurl = {
+    production: "https://carpool-api.techrover.us",
+    localhost: "http://localhost:4000"
+}
+
 const api = axios.create({
-    baseURL: "https://carpool-api.techrover.us/",
+    baseURL: baseurl.production,
 });
 
 export const ApiService = {

@@ -55,7 +55,7 @@ const Login = () => {
           <div className="inline-flex items-center justify-center p-4 bg-slate-900 rounded-2xl mb-4 shadow">
             <Car className="h-10 w-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-slate-800">CarPool Book</h1>
+          <h1 className="text-3xl font-bold text-slate-800">Rover CarPool</h1>
           <p className="text-slate-500 mt-2">
             Branch-Based Office Car Booking System
           </p>
